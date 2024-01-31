@@ -1,0 +1,30 @@
+
+
+interface SolidityApp {
+    function transfer(address recipient, uint256 amount) external returns (bool);
+}
+
+contract TokenAirdrop {
+    address public owner;
+    SolidityApp public token;
+    
+    constructor(address _token) {
+        owner = msg.sender;
+        token = IERC20(_token);
+    }
+    
+    function setToken(address _token) external {
+        require(msg.sender == owner, "Only the owner can set the token");
+        token = IERC20(_token);
+    }
+    
+    function airdrop(address[] calldata recipients, uint256 amount) external {
+        require(msg.sender == owner, "Only the owner can perform airdrops");
+        require(amount > 0, "Invalid airdrop amount");
+        require(recipients.length > 0, "No recipients specified");
+        
+        for (uint256 i = 0; i < recipients.length; i++) {
+            require(token.transfer(recipients[i], amount), "Airdrop failed");
+        }
+    }
+}
